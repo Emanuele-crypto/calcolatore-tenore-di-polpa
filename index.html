@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Tenore di Polpa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        
+        /* Aggiungo stile per mostrare solo i risultati importanti */
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2e7d32;
+        }
+        .results {
+            margin-top: 30px;
+            background-color: #f5f9f5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #4caf50;
+        }
+        .results h2 {
+            margin-top: 0;
+            color: #2e7d32;
+            text-align: center;
+        }
+        .result-item {
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: center;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-value {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 22px;
+            display: block;
+            margin-top: 5px;
+        }
+        .formula {
+            background-color: #f0f4f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        .hidden {
+            display: none;
+        }
+        .steps {
+            margin-top: 20px;
+        }
+        .step {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calcolatore Tenore di Polpa</h1>
+        
+        <div class="input-group">
+            <label for="volume-totale">Volume Totale (litri):</label>
+            <input type="number" id="volume-totale" placeholder="Es. 10000" value="10000">
+        </div>
+
+        <div class="input-group">
+            <label for="percentuale-polpa-iniziale">Percentuale di Polpa Iniziale (%):</label>
+            <input type="number" id="percentuale-polpa-iniziale" placeholder="Es. 10" value="10" step="0.1">
+        </div>
+
+        <div class="input-group">
+            <label for="percentuale-polpa-finale">Percentuale di Polpa Finale Desiderata (%):</label>
+            <input type="number" id="percentuale-polpa-finale" placeholder="Es. 2" value="2" step="0.1">
+        </div>
+
+        <div class="input-group">
+            <label for="percentuale-polpa-centrifugata">Percentuale di Polpa Dopo Centrifuga (%):</label>
+            <input type="number" id="percentuale-polpa-centrifugata" placeholder="Es. 0.5" value="0.5" step="0.1">
+        </div>
+
+        <div class="input-group">
+            <label for="percentuale-polpa-non-centrifugata">Percentuale di Polpa Parte Non Centrifugata (%):</label>
+            <input type="number" id="percentuale-polpa-non-centrifugata" placeholder="Es. 10" value="10" step="0.1">
+        </div>
+
+        <button id="calcola">Calcola</button>
+
+        <div class="results hidden" id="results">
+            <h2>Risultati del Calcolo</h2>
+            
+            <div class="formula hidden">
+                <p><strong>Formula utilizzata:</strong></p>
+                <p>Volume da centrifugare = Volume totale × (% iniziale - % finale desiderata) ÷ (% iniziale - % dopo centrifuga)</p>
+            </div>
+            
+            <div class="steps hidden" id="steps">
+                <h3>Passaggi del calcolo:</h3>
+                <!-- I passaggi verranno inseriti qui dal JavaScript -->
+            </div>
+            
+            <div class="result-item">
+                Volume da centrifugare allo <span id="perc-centrifugata"></span>%:
+                <span id="volume-centrifugare" class="result-value">0</span> litri
+            </div>
+            <div class="result-item">
+                Volume da lasciare al <span id="perc-non-centrifugata"></span>%:
+                <span id="volume-non-centrifugare" class="result-value">0</span> litri
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calcola').addEventListener('click', function() {
+            // Recupera i valori inseriti
+            const volumeTotale = parseFloat(document.getElementById('volume-totale').value);
+            const percentualeIniziale = parseFloat(document.getElementById('percentuale-polpa-iniziale').value) / 100;
+            const percentualeFinale = parseFloat(document.getElementById('percentuale-polpa-finale').value) / 100;
+            const percentualeCentrifugata = parseFloat(document.getElementById('percentuale-polpa-centrifugata').value) / 100;
+            const percentualeNonCentrifugata = parseFloat(document.getElementById('percentuale-polpa-non-centrifugata').value) / 100;
+            
+            // Calcola il volume da centrifugare
+            const volumeDaCentrifugare = volumeTotale * (percentualeIniziale - percentualeFinale) / (percentualeNonCentrifugata - percentualeCentrifugata);
+            const volumeNonCentrifugare = volumeTotale - volumeDaCentrifugare;
+            
+            // Mostra i risultati
+            document.getElementById('volume-centrifugare').textContent = volumeDaCentrifugare.toFixed(2);
+            document.getElementById('volume-non-centrifugare').textContent = volumeNonCentrifugare.toFixed(2);
+            document.getElementById('perc-centrifugata').textContent = (percentualeCentrifugata * 100).toFixed(1);
+            document.getElementById('perc-non-centrifugata').textContent = (percentualeNonCentrifugata * 100).toFixed(1);
+            
+            // Mostra i passaggi del calcolo
+            const stepsDiv = document.getElementById('steps');
+            stepsDiv.innerHTML = '';
+            
+            // Aggiungi i passaggi del calcolo
+            const steps = [
+                `1. Definiamo le variabili:
+                   - Volume totale: ${volumeTotale} litri
+                   - Percentuale di polpa iniziale: ${(percentualeIniziale * 100).toFixed(1)}%
+                   - Percentuale di polpa finale desiderata: ${(percentualeFinale * 100).toFixed(1)}%
+                   - Percentuale di polpa dopo centrifuga: ${(percentualeCentrifugata * 100).toFixed(1)}%
+                   - Percentuale di polpa nella parte non centrifugata: ${(percentualeNonCentrifugata * 100).toFixed(1)}%
+                   - x = volume da centrifugare (in litri)
+                   - (${volumeTotale} - x) = volume da lasciare non centrifugato (in litri)`,
+                
+                `2. Impostiamo l'equazione di miscelazione:
+                   (${(percentualeCentrifugata * 100).toFixed(1)}% · x) + (${(percentualeNonCentrifugata * 100).toFixed(1)}% · (${volumeTotale} - x)) = ${(percentualeFinale * 100).toFixed(1)}% · ${volumeTotale}`,
+                
+                `3. Sviluppiamo i calcoli:
+                   ${percentualeCentrifugata.toFixed(4)}x + ${percentualeNonCentrifugata.toFixed(4)}(${volumeTotale} - x) = ${percentualeFinale.toFixed(4)} · ${volumeTotale}
+                   ${percentualeCentrifugata.toFixed(4)}x + ${(percentualeNonCentrifugata * volumeTotale).toFixed(2)} - ${percentualeNonCentrifugata.toFixed(4)}x = ${(percentualeFinale * volumeTotale).toFixed(2)}
+                   ${percentualeCentrifugata.toFixed(4)}x - ${percentualeNonCentrifugata.toFixed(4)}x = ${(percentualeFinale * volumeTotale).toFixed(2)} - ${(percentualeNonCentrifugata * volumeTotale).toFixed(2)}
+                   ${(percentualeCentrifugata - percentualeNonCentrifugata).toFixed(4)}x = ${(percentualeFinale * volumeTotale - percentualeNonCentrifugata * volumeTotale).toFixed(2)}
+                   x = ${(percentualeFinale * volumeTotale - percentualeNonCentrifugata * volumeTotale).toFixed(2)} / ${(percentualeCentrifugata - percentualeNonCentrifugata).toFixed(4)}
+                   x = ${volumeDaCentrifugare.toFixed(2)} litri`,
+                
+                `4. Calcoliamo il volume da non centrifugare:
+                   Volume da lasciare non centrifugato = ${volumeTotale} - ${volumeDaCentrifugare.toFixed(2)} = ${volumeNonCentrifugare.toFixed(2)} litri`,
+                
+                `5. Verifichiamo il risultato:
+                   (${(percentualeCentrifugata * 100).toFixed(1)}% · ${volumeDaCentrifugare.toFixed(2)}) + (${(percentualeNonCentrifugata * 100).toFixed(1)}% · ${volumeNonCentrifugare.toFixed(2)}) = ${((percentualeCentrifugata * volumeDaCentrifugare + percentualeNonCentrifugata * volumeNonCentrifugare) / volumeTotale * 100).toFixed(1)}% · ${volumeTotale}`
+            ];
+            
+            steps.forEach(step => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'step';
+                stepElement.innerHTML = step;
+                stepsDiv.appendChild(stepElement);
+            });
+            
+            // Mostra la sezione dei risultati
+            document.getElementById('results').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
